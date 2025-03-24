@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/base.css">
+{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Draw: <span id="draw-item"></span></h1>
+    <div class="toolbar">
+        <div class="left-controls">
+            <button class="btn" onclick="setBrushSize(5)">Small ▪️</button>
+            <button class="btn" onclick="setBrushSize(10)">Medium ◾️️</button>
+            <button class="btn" onclick="setBrushSize(20)">Large ◼️</button>
+        </div>
+        <div class="right-controls">
+            <button class="btn" onclick="undo()">Undo</button>
+            <button class="btn" onclick="clearCanvas()">Clear</button>
+        </div>
+    </div>
+        <canvas id="drawingCanvas" width="500" height="500"></canvas>
+    <br>
+    <button class="btn" onclick="submitDrawing()">Submit</button>
+    <div id="loading" class="hidden">Submitting...</div>
+
+
+{% endblock %}
+</body>
+
+{% block scripts %}
+<script src="/static/js/draw.js"></script>
+{% endblock %}

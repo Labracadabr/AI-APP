@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/form.css">
+{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dollar Snowflakes</title>
+
+</head>
+
+<style>
+    .snowflake {
+        position: absolute;
+        top: -50px;
+        font-size: 24px;
+        color: #00ff00;
+        opacity: 0.8;
+        user-select: true;
+        pointer-events: none;
+        animation: fall linear infinite;
+    }
+    @keyframes fall {
+        to {
+            transform: translateY(100vh);
+        }
+    }
+</style>
+
+<body>
+    <script>
+        function createSnowflake() {
+            const snowflake = document.createElement("div");
+            snowflake.classList.add("snowflake");
+
+            const dollar_nums = [1, 5, 10, 20, 50, 100];
+            const random_num = dollar_nums[Math.floor(Math.random() * dollar_nums.length)];
+
+            snowflake.innerText = "$" + random_num;
+            document.body.appendChild(snowflake);
+
+            const startLeft = Math.random() * window.innerWidth;
+            const duration = Math.random() * 5 + 5;
+            const size = Math.random() * 20 + 10;
+
+            snowflake.style.left = `${startLeft}px`;
+            snowflake.style.fontSize = `${size}px`;
+            snowflake.style.animationDuration = `${duration}s`;
+
+            setTimeout(() => {
+                snowflake.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createSnowflake, 200);
+    </script>
+</body>
+{% endblock %}
+
+{% block scripts %}
+<!--<script src="/static/js/index.js"></script>-->
+{% endblock %}

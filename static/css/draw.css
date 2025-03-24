@@ -1,0 +1,81 @@
+
+#red{
+    background: red;
+    widows: 20px;
+    height: 20px;
+}
+#blue{
+    background: blue;
+    widows: 20px;
+    height: 20px;
+}
+#green{
+    background: green;
+    widows: 20px;
+    height: 20px;
+}
+#yellow{
+    background: yellow;
+    widows: 20px;
+    height: 20px;
+}
+#black{
+    background: black;
+    widows: 20px;
+    height: 20px;
+}
+#brown{
+    background: brown;
+    widows: 20px;
+    height: 20px;
+}
+#white{
+    background: white;
+    widows: 20px;
+    height: 20px;
+}
+img{
+    max-width: 100px;
+    max-height: 100px;
+}
+a{
+
+    display: inline-block;
+
+}
+a:button{
+    background-color: red;
+    height: 10px;
+}
+#pencil
+{
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: black;
+
+
+}
+#smallBrush{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: black;
+}
+#mediumBrush{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: black;
+}
+#bigBrush{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: black;
+
+}
+canvas{
+  margin-left: 25%;
+  margin-right: 25%;
+}

@@ -1,0 +1,11 @@
+﻿aiogram
+environs
+psycopg2-binary
+requests
+fastapi
+pydantic
+tenacity
+uvicorn
+jinja2
+python-multipart
+jwt
