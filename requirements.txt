@@ -1,4 +1,4 @@
-﻿aiogram
+﻿httpx
 environs
 psycopg2-binary
 requests
@@ -10,3 +10,4 @@ jinja2
 python-multipart
 jwt
 slowapi
+asyncpg
