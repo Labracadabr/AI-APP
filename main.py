@@ -7,6 +7,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from routers import frontend, backend, static
 
+from app.dao import AsyncBaseDAO
 
 app = FastAPI()
 
@@ -21,6 +22,15 @@ app.include_router(frontend.router)
 app.include_router(backend.router)
 app.include_router(static.router)
 app.mount('/static', StaticFiles(directory='static'), name='static')
+
+# init db pools
+@app.on_event("startup")
+async def startup():
+    await AsyncBaseDAO.initialize_pools()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await AsyncBaseDAO.close_pools()
 
 
 if __name__ == "__main__":

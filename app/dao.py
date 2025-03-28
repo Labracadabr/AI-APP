@@ -7,22 +7,39 @@ from config import config
 
 
 class AsyncBaseDAO:
+    dsn = f"postgresql://{config.user}:{config.password}@{config.host}:{config.port}/{config.dbname}"
+
     model_table: str = None
     pk_column: str = "id"  # primary key column name
 
     # connection pool to be initialized at application startup
     _pool: asyncpg.pool.Pool = None
+    _daos: set['AsyncPGBaseDAO'] = set()
+
+    # all DAOs automatically register themselves
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._daos.add(cls)
 
     @classmethod
-    async def initialize_pool(cls, dsn: str, **pool_kwargs):
+    async def initialize_pools(cls):
+        for dao in cls._daos:
+            if not dao._pool:
+                await dao.initialize_pool()
+
+    @classmethod
+    async def initialize_pool(cls, **pool_kwargs):
         """Initialize the connection pool (call once at app startup)"""
-        cls._pool = await asyncpg.create_pool(dsn, **pool_kwargs)
+        cls._pool = await asyncpg.create_pool(cls.dsn, **pool_kwargs)
 
     @classmethod
-    async def close_pool(cls):
-        """Close the connection pool (call at app shutdown)"""
-        await cls._pool.close()
+    async def close_pools(cls):
+        for dao in cls._daos:
+            if dao._pool:
+                await dao._pool.close()
+                dao._pool = None
 
+    # CRUD
     @classmethod
     async def find_one_or_none_by_id(cls, data_id: int) -> Optional[Dict[str, Any]]:
         async with cls._pool.acquire() as conn:
@@ -114,16 +131,16 @@ class UserDAO(AsyncBaseDAO):
 
 
 if __name__ == '__main__':
+    # EXAMPLE
     async def example():
         # at app startup
-        dsn = f"postgresql://{config.user}:{config.password}@{config.host}:{config.port}/{config.dbname}"
-        await UserDAO.initialize_pool(dsn)
+        await AsyncBaseDAO.initialize_pools()
 
         # example
         users = await UserDAO.find_all()
         for u in users:
             print(u)
-        await UserDAO.close_pool()
 
+        await AsyncBaseDAO.close_pools()
 
     asyncio.run(example())
