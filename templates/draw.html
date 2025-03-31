@@ -5,29 +5,59 @@
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/draw.css">
 {% endblock %}
 
 {% block content %}
 <body>
-    <h1>Draw: <span id="draw-item"></span></h1>
-    <div class="toolbar">
-        <div class="left-controls">
-            <button class="btn" onclick="setBrushSize(5)">Small ▪️</button>
-            <button class="btn" onclick="setBrushSize(10)">Medium ◾️️</button>
-            <button class="btn" onclick="setBrushSize(20)">Large ◼️</button>
-        </div>
-        <div class="right-controls">
-            <button class="btn" onclick="undo()">Undo</button>
-            <button class="btn" onclick="clearCanvas()">Clear</button>
-        </div>
+
+<div class="app-container">
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="task-container">
+      <h2 class="task-title"><span class="lang-draw-prompt">What you need to draw:</span></h2>
+      <div class="task-display" id="taskDisplay"></div>
     </div>
+
+    <div class="drawing-container">
+      <div class="drawing-tools">
+        <div class="tool-group">
+          <button class="tool-button active" id="drawBtn">✏️ <span class="lang-draw">Draw</span></button>
+          <button class="tool-button" id="eraseBtn">🧽 <span class="lang-erase">Erase</span></button>
+          <button class="tool-button" id="undoBtn">↩️ <span class="lang-undo">Undo</span></button>
+          <button class="tool-button" id="redoBtn">↪️ <span class="lang-redo">Redo</span></button>
+          <button class="tool-button" id="clearBtn">🗑️ <span class="lang-clear">Clear</span></button>
+        </div>
+        <div class="brush-size-container">
+          <span class="lang-brush-size">Brush size:</span>
+          <input type="range" min="1" max="5" value="2" class="brush-size-slider" id="brushSize">
+          <span class="brush-size-display" id="brushSizeDisplay">2</span>
+        </div>
+      </div>
+      <div class="canvas-container">
         <canvas id="drawingCanvas" width="500" height="500"></canvas>
-    <br>
-    <button class="btn" onclick="submitDrawing()">Submit</button>
-    <div id="loading" class="hidden">Submitting...</div>
+      </div>
+      <div class="submit-container">
+        <button class="submit-button" id="submitBtn"><span class="lang-submit">Submit</span></button>
+        <button class="next-button hidden" id="nextBtn"><span class="lang-next">Next</span></button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="loader"></div>
+</div>
 
+<!-- Response Popup -->
+<div class="popup hidden" id="responsePopup">
+  <div class="popup-content">
+    <span class="popup-close" id="popupClose">&times;</span>
+    <p id="popupMessage"></p>
+  </div>
+</div>
 {% endblock %}
 </body>
 
