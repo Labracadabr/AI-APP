@@ -1,11 +1,8 @@
-<!-- Базовый html. Сюда по тегам % block content %, % block scripts % -->
-<!-- импортируются остальные страницы, чтобы не прописывать в них повторяющиеся куски и зависимости -->
-
 <!DOCTYPE html>
 <html lang="ru">
 
-    {% block styles %}
     <link rel="stylesheet" href="/static/css/base.css">
+    {% block styles %}
     {% endblock %}
 
     <head>
@@ -13,17 +10,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" href="/static/images/favicon.ico">
     </head>
-    <body>
-        <div class="dark-or-light">
-            <!-- Dark Mode Button -->
-            {% include 'include/dark_btn.html' %}
+<body>
+    <div class="dark-or-light">
+        {% include 'include/sidebar.html' %}
+        {% block content %} {% endblock %}
+    </div>
 
-            {% block content %} {% endblock %}
-        </div>
-
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <script src="/static/js/base.js"></script>
-        {% block scripts %} {% endblock %}
-    </body>
+    <script src="/static/js/base.js"></script>
+    {% block scripts %}
+    {% endblock %}
+</body>
 
 </html>
