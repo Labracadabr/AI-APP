@@ -10,7 +10,7 @@ from app import ai, dao
 
 
 router = APIRouter(prefix='/api', tags=['backend'])
-llm = ai.LlamaVisionLLM()
+llm = ai.GeminiLLM()
 
 class SubmitDrawing(BaseModel):
     image: str

@@ -8,7 +8,7 @@ class Config:
 
     # LLM API
     GROQ_API_KEY: str = None
-    prompt: str = None
+    GEMINI_API_KEY: str = None
 
     # DB
     host: str = None                # хост
@@ -24,7 +24,7 @@ env.read_env()
 config = Config(
     site=env('site'),
     GROQ_API_KEY=env('GROQ_API_KEY'),
-    prompt=env('prompt'),
+    GEMINI_API_KEY=env('GEMINI_API_KEY'),
     host=env('host'),
     dbname=env('dbname'),
     user=env('user'),

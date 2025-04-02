@@ -41,6 +41,54 @@ class LlamaVisionLLM:
         return response.get("choices", [{}])[0].get("message", {}).get("content", "Error: no response")
 
 
+class GeminiLLM:
+    """Class for handling Google Gemini API requests."""
+
+    BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    API_KEY = config.GEMINI_API_KEY
+
+    def _prepare_request(self, conversation: list):
+        """Formats request for Gemini API."""
+        messages = []
+        for msg in conversation:
+            parts = []
+            if isinstance(msg["content"], str):
+                parts.append({"text": msg["content"]})
+            elif isinstance(msg["content"], list):
+                for item in msg["content"]:
+                    if "text" in item:
+                        parts.append({"text": item["text"]})
+                    elif "image_url" in item:
+                        parts.append({
+                            "inline_data": {
+                                "mime_type": "image/jpeg",
+                                "data": item["image_url"]["url"].split(",")[-1]
+                            }
+                        })
+            messages.append({"parts": parts})
+
+        payload = {"contents": messages}
+        headers = {"Content-Type": "application/json"}
+        save_json(payload, "./llm_last_request.json")
+        return f"{self.BASE_URL}?key={self.API_KEY}", headers, payload
+
+    async def send_chat_request(self, conversation: list) -> dict:
+        url, headers, payload = self._prepare_request(conversation)
+        async with httpx.AsyncClient(timeout=60) as client:
+            try:
+                r = await client.post(url, headers=headers, json=payload)
+                response_dict = r.json()
+                response_dict['status_code'] = r.status_code
+            except Exception as e:
+                return {"error": str(e), "status_code": r.status_code if 'r' in locals() else 500}
+        save_json(response_dict, "./llm_last_response.json")
+        return response_dict
+
+    async def parse_answer(self, conversation: list) -> str:
+        response = await self.send_chat_request(conversation)
+        return response.get('candidates', [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "Error: no response")
+
+
 # подготовить сообщение от юзера для LLM
 def user_message(prompt: str, encoded_image=None) -> dict:
     # если сообщение с изображением
@@ -60,7 +108,7 @@ def user_message(prompt: str, encoded_image=None) -> dict:
 
 # засчитала ли нейросеть прохождение задания
 def has_user_passed_task(llm_response: str) -> bool | None:
-    llm_response = llm_response.lower().rstrip('.')
+    llm_response = llm_response.lower().rstrip('.\n ')
     if llm_response.endswith('not passed'):
         return False
     elif llm_response.endswith('passed'):
@@ -83,5 +131,10 @@ if __name__ == '__main__':
         groq_llm = LlamaVisionLLM()
         groq_response = await groq_llm.parse_answer(conv)
         print("Groq Response:", groq_response)
+
+        # Gemini LLM
+        gemini_llm = GeminiLLM()
+        gemini_response = await gemini_llm.parse_answer(conv)
+        print("Gemini Response:", gemini_response)
 
     asyncio.run(example())
