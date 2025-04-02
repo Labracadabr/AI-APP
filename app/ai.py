@@ -7,36 +7,38 @@ from config import config
 
 session = requests.Session()
 
-# параметры запроса
-def _prepare_request(conversation: list, model):
-    # model endpoint & api key
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    api_key = config.GROQ_API_KEY
 
-    # request
-    headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json"}
-    payload = {"messages": conversation, "model": model}
+class LlamaVisionLLM:
+    """Class for handling Groq LLM requests."""
 
-    save_json(payload, f'./llm_last_request.json')
-    return url, headers, payload
+    BASE_URL = "https://api.groq.com/openai/v1/chat/completions"
+    API_KEY = config.GROQ_API_KEY
+    model = "llama-3.2-90b-vision-preview"
 
+    def _prepare_request(self, conversation: list, ):
+        headers = {
+            "Authorization": f"Bearer {self.API_KEY}",
+            "Content-Type": "application/json",
+        }
+        payload = {"messages": conversation, "model": self.model}
+        save_json(payload, "./llm_last_request.json")
+        return self.BASE_URL, headers, payload
 
-async def send_chat_request(conversation: list, model="llama-3.2-11b-vision-preview") -> dict:
-    # request
-    url, headers, payload = _prepare_request(conversation, model)
+    async def send_chat_request(self, conversation: list) -> dict:
+        url, headers, payload = self._prepare_request(conversation)
+        async with httpx.AsyncClient(timeout=60) as client:
+            try:
+                r = await client.post(url, headers=headers, json=payload)
+                response_dict = r.json()
+                response_dict['status_code'] = r.status_code
+            except Exception as e:
+                return {"error": str(e), "status_code": r.status_code if 'r' in locals() else 500}
+        save_json(response_dict, "./llm_last_response.json")
+        return response_dict
 
-    # response - 60 sec timeout
-    async with httpx.AsyncClient(timeout=60) as client:
-        try:
-            r = await client.post(url, headers=headers, json=payload)
-            print(f'{r.status_code = }')
-            response_dict: dict = r.json()
-            response_dict['status_code'] = r.status_code
-        except Exception as e:
-            return {'error': e, 'status_code': r.status_code}
-
-    save_json(response_dict, f'./llm_last_response.json')
-    return response_dict
+    async def parse_answer(self, conversation: list) -> str:
+        response = await self.send_chat_request(conversation)
+        return response.get("choices", [{}])[0].get("message", {}).get("content", "Error: no response")
 
 
 # подготовить сообщение от юзера для LLM
@@ -69,10 +71,17 @@ def has_user_passed_task(llm_response: str) -> bool | None:
 
 if __name__ == '__main__':
     # example
-    file = r'doodle_car.png'
-    prompt = 'what is drawn here'
-    user_msg = user_message(prompt=prompt, encoded_image=encode_image(file))
-    conv = [user_msg]
-    r: dict = asyncio.run(send_chat_request(conversation=conv))
-    print(r.get('choices')[0]['message']['content'])
-    pass
+    async def example():
+        file = "doodle_car.png"
+        prompt = open('../prompt.txt', 'r', encoding='utf-8').read().format(item_name='car')
+        prompt = 'describe picture'
+        encoded_img = encode_image(file)
+        user_msg = user_message(prompt, encoded_image=encoded_img)
+        conv = [user_msg]
+
+        # Groq LLM
+        groq_llm = LlamaVisionLLM()
+        groq_response = await groq_llm.parse_answer(conv)
+        print("Groq Response:", groq_response)
+
+    asyncio.run(example())

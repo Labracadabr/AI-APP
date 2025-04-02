@@ -10,7 +10,7 @@ from app import ai, dao
 
 
 router = APIRouter(prefix='/api', tags=['backend'])
-
+llm = ai.LlamaVisionLLM()
 
 class SubmitDrawing(BaseModel):
     image: str
@@ -27,8 +27,7 @@ async def submit_drawing(data: SubmitDrawing):
 
     try:
         while True:
-            r: dict = await ai.send_chat_request(conversation=[user_msg])
-            llm_response = r.get('choices')[0]['message']['content']
+            llm_response: str = await llm.parse_answer(conversation=[user_msg])
             passed = ai.has_user_passed_task(llm_response=llm_response)
             if passed is None:
                 print(f'fail {llm_response = }')
@@ -40,7 +39,6 @@ async def submit_drawing(data: SubmitDrawing):
         status_code = 200
 
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
         result['error'] = str(e)
         status_code = 500
 
