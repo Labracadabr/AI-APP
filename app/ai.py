@@ -56,6 +56,17 @@ def user_message(prompt: str, encoded_image=None) -> dict:
     return msg_dict
 
 
+# засчитала ли нейросеть прохождение задания
+def has_user_passed_task(llm_response: str) -> bool | None:
+    llm_response = llm_response.lower().rstrip('.')
+    if llm_response.endswith('not passed'):
+        return False
+    elif llm_response.endswith('passed'):
+        return True
+    else:
+        return None
+
+
 if __name__ == '__main__':
     # example
     file = r'doodle_car.png'
