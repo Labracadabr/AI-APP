@@ -229,9 +229,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Prepare data to submit
     try {
+        // Create a temporary canvas to send png as non-transparent
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
+
+        // Set the same size as the original canvas
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+
+        // Fill the background with white
+        tempCtx.fillStyle = "#FFFFFF";
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        // Draw the original canvas content on top
+        tempCtx.drawImage(canvas, 0, 0);
 
         // Convert canvas to Base64
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = tempCanvas.toDataURL("image/png");
         const base64Image = dataUrl.split(",")[1];  // Remove "data:image/png;base64,"
         const data = {
             image: base64Image,
