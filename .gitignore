@@ -1,3 +1,7 @@
+/logs
+*.log
+*.txt
+!requirements.txt
 /shelf/
 /workspace.xml
 .idea
@@ -5,14 +9,8 @@
 *.json
 *.tsv
 *.csv
-*.docx
 *.png
-*.xlsx
-*.gexf
-*.ipynb
-*.zip
-*.xml
 *.service
-vps.txt
 *.ico
 *.pyc
+_/py
