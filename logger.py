@@ -38,5 +38,5 @@ formatter = logging.Formatter("%(asctime)s\t%(levelname)s:\t%(message)s")
 log_handler.setFormatter(formatter)
 
 logger = logging.getLogger("AI-APP")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(log_handler)
