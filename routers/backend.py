@@ -7,6 +7,7 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 
 from app import ai, dao
+from logger import logger
 
 
 router = APIRouter(prefix='/api', tags=['backend'])
@@ -19,6 +20,7 @@ class SubmitDrawing(BaseModel):
 
 @router.post("/submit-drawing")
 async def submit_drawing(data: SubmitDrawing):
+    logger.info(f"/submit-drawing item_name = {data.item_name}, size = {round(len(data.image) * 3 // 4 / 1024, 2)}kb")
     result = {"message": '', "passed": False, "error": None}
 
     # prepare request to llm-provider
@@ -42,6 +44,7 @@ async def submit_drawing(data: SubmitDrawing):
         result['error'] = str(e)
         status_code = 500
 
+    logger.info(f"/submit-drawing {result = }")
     return JSONResponse(result, status_code=status_code)
 
 

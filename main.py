@@ -8,6 +8,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from routers import frontend, backend, static
 
 from app.dao import AsyncBaseDAO
+from logger import logger
 from middleware.logging import LoggingMiddleware
 
 app = FastAPI()
@@ -34,6 +35,7 @@ async def startup():
 async def shutdown():
     await AsyncBaseDAO.close_pools()
 
+logger.info("APP started")
 
 if __name__ == "__main__":
     pass

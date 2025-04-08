@@ -13,4 +13,4 @@
 *.service
 *.ico
 *.pyc
-_/py
+_.py
