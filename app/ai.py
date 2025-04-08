@@ -1,6 +1,7 @@
 import asyncio
 import requests
 import httpx
+import random
 
 from app.utils import save_json, encode_image
 from config import config
@@ -44,8 +45,14 @@ class LlamaVisionLLM:
 class GeminiLLM:
     """Class for handling Google Gemini API requests."""
 
-    BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     API_KEY = config.GEMINI_API_KEY
+    models = [
+        'gemini-1.5-flash-8b',
+        'gemini-1.5-flash',
+        'gemini-2.0-flash-lite',
+        'gemini-2.0-flash',
+    ]
 
     def _prepare_request(self, conversation: list):
         """Formats request for Gemini API."""
@@ -74,6 +81,12 @@ class GeminiLLM:
 
     async def send_chat_request(self, conversation: list) -> dict:
         url, headers, payload = self._prepare_request(conversation)
+
+        # pick random model for even distribution of api usage
+        model = random.choice(self.models)
+        print(f'{model = }')
+        url = url.format(model=model)
+
         async with httpx.AsyncClient(timeout=60) as client:
             try:
                 r = await client.post(url, headers=headers, json=payload)
@@ -109,9 +122,9 @@ def user_message(prompt: str, encoded_image=None) -> dict:
 # засчитала ли нейросеть прохождение задания
 def has_user_passed_task(llm_response: str) -> bool | None:
     llm_response = llm_response.lower().rstrip('.\n ')
-    if llm_response.endswith('not passed'):
+    if llm_response.startswith('❌'):
         return False
-    elif llm_response.endswith('passed'):
+    elif llm_response.startswith('✅'):
         return True
     else:
         return None
