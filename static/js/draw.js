@@ -249,7 +249,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const base64Image = dataUrl.split(",")[1];  // Remove "data:image/png;base64,"
         const data = {
             image: base64Image,
-            item_name: currentItem
+            item_name: currentItem,
+            language: currentLanguage
       };
 
       // Send to API

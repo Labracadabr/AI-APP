@@ -16,6 +16,7 @@ llm = ai.GeminiLLM()
 class SubmitDrawing(BaseModel):
     image: str
     item_name: str
+    language: str = 'EN'
 
 
 @router.post("/submit-drawing")
@@ -24,7 +25,7 @@ async def submit_drawing(data: SubmitDrawing):
     result = {"message": '', "passed": False, "error": None}
 
     # prepare request to llm-provider
-    prompt = open('prompt.txt', 'r', encoding='utf-8').read().format(item_name=data.item_name)
+    prompt = open('prompt.txt', 'r', encoding='utf-8').read().format(item_name=data.item_name, language=data.language)
     user_msg = ai.user_message(prompt=prompt, encoded_image=data.image)
 
     try:
