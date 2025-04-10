@@ -1,9 +1,56 @@
   <!-- Side Menu -->
+<style>
+  /* Side Menu */
+.side-menu {
+  width: 80px;
+  height: 100%;
+  background-color: #f0f0f0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  transition: all 0.3s ease;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  gap: 20px;
+}
+
+.menu-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+</style>
   <div class="side-menu">
     <div class="menu-content">
       {% include 'include/dark_btn.html' %}
+      <button class="menu-button language-button" id="gameBtn">✏️ Game</button>
       <button class="menu-button language-button" id="langToggle">🌐 EN/RU</button>
       <button class="menu-button profile-button" id="profileBtn">👤 <span class="lang-profile">Profile</span></button>
+      <button class="menu-button progress-button active" id="progressBtn">📊 <span class="lang-progress">Progress</span></button>
       <button class="menu-button extra-button" id="extraBtn">⚙️ <span class="lang-extra">Settings</span></button>
     </div>
   </div>
+<script src="/static/js/sidebar.js"></script>
