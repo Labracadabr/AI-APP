@@ -1,3 +1,4 @@
+import datetime
 import json
 from pprint import pprint
 
@@ -49,3 +50,36 @@ async def submit_drawing(data: SubmitDrawing):
     return JSONResponse(result, status_code=status_code)
 
 
+class UserRegForm(BaseModel):
+    username: str
+    password: str
+    birth_year: int
+    email: str = None
+    fullname: str = None
+
+    async def valid(self):
+        year_now = datetime.datetime.now().year
+        assert self.birth_year in range(year_now - 100, year_now - 10), 'Unacceptable year'
+        assert len(self.password) > 5, 'Minimal password length is 6 symbols'
+        assert not await dao.UserDAO.username_exists(self.username), 'This username is already taken.'
+
+
+@router.post("/register")
+async def _(form: UserRegForm):
+    result = {}
+    try:
+        await form.valid()
+        user = dao.UserDAO.add(**{"username": form.username, "password": form.password,
+                                  "birth_year": form.birth_year, "email": form.email, "fullname": form.fullname})
+        status_code = 200
+
+    except AssertionError as e:
+        status_code = 422
+        result['error'] = f'Validation error: {e}'
+    except Exception as e:
+        status_code = 500
+        result['error'] = 'Database error'
+        print(f'register error:', e)
+
+    logger.info(f"/register {result = }")
+    return JSONResponse(result, status_code=status_code)

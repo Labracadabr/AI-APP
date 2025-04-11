@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const extraBtn = document.getElementById('extraBtn');
 
     profileBtn.addEventListener('click', function () {
-        window.location.href = `/register`;
+        window.location.href = `/profile`;
     });
     gameBtn.addEventListener('click', function () {
         window.location.href = `/draw`;
     });
-    progressBtn.addEventListener('click', function () => {
+    progressBtn.addEventListener('click', function () {
         window.location.href = '/progress';
     });
 

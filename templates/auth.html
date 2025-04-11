@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab-btn" id="loginTabBtn"><span class="lang-login">Login</span></button>
+      <button class="auth-tab-btn active" id="registerTabBtn"><span class="lang-register">Register</span></button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="auth-form" id="loginForm">
+      <h2><span class="lang-welcome-back">Welcome Back</span></h2>
+      <form id="loginFormElement">
+        <div class="form-group">
+          <label for="loginUsername"><span class="lang-username">Username</span></label>
+          <input type="text" id="loginUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword"><span class="lang-password">Password</span></label>
+          <input type="password" id="loginPassword" name="password" required>
+        </div>
+        <div class="form-error hidden" id="loginError"></div>
+        <button type="submit" class="auth-btn"><span class="lang-login">Login</span></button>
+      </form>
+    </div>
+
+    <!-- Register Form -->
+    <div class="auth-form active" id="registerForm">
+      <h2><span class="lang-create-account">Create Account</span></h2>
+      <form id="registerFormElement">
+        <div class="form-group">
+          <label for="regUsername"><span class="lang-username">Username</span></label>
+          <input type="text" id="regUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="regPassword"><span class="lang-password">Password</span></label>
+          <input type="password" id="regPassword" name="password" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail"><span class="lang-email">Email (optional)</span></label>
+          <input type="email" id="regEmail" name="email">
+        </div>
+        <div class="form-group">
+          <label for="regFullname"><span class="lang-fullname">Full Name (optional)</span></label>
+          <input type="text" id="regFullname" name="fullname">
+        </div>
+        <div class="form-group">
+          <label for="regBirthYear"><span class="lang-birth-year">Birth Year</span></label>
+          <input type="number" id="regBirthYear" name="birth_year" min="1920" max="2015" required>
+        </div>
+        <div class="form-error hidden" id="registerError"></div>
+        <button type="submit" class="auth-btn"><span class="lang-register">Register</span></button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/auth.js"></script>
+{% endblock %}

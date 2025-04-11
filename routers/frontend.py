@@ -18,3 +18,9 @@ async def _(request: Request):
 @router.get("/draw", response_class=HTMLResponse)
 async def _(request: Request):
     return templates.TemplateResponse("draw.html", {"request": request, "title": title})
+
+# user registration
+@router.get("/auth")
+def register(request: Request):
+    return templates.TemplateResponse("auth.html", {"request": request})
+
