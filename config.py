@@ -5,6 +5,7 @@ from environs import Env
 @dataclass
 class Config:
     site: str = None
+    crypt_key: str = None           # ключ шифрования
 
     # LLM API
     GROQ_API_KEY: str = None
@@ -23,6 +24,7 @@ env = Env()
 env.read_env()
 config = Config(
     site=env('site'),
+    crypt_key=env('crypt_key'),
     GROQ_API_KEY=env('GROQ_API_KEY'),
     GEMINI_API_KEY=env('GEMINI_API_KEY'),
     host=env('host'),

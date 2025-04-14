@@ -2,17 +2,18 @@ import datetime
 import json
 from pprint import pprint
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 
 from app import ai, dao
+from routers.security import get_password_hash
 from logger import logger
-
 
 router = APIRouter(prefix='/api', tags=['backend'])
 llm = ai.GeminiLLM()
+
 
 class SubmitDrawing(BaseModel):
     image: str
@@ -69,8 +70,12 @@ async def _(form: UserRegForm):
     result = {}
     try:
         await form.valid()
-        user = dao.UserDAO.add(**{"username": form.username, "password": form.password,
-                                  "birth_year": form.birth_year, "email": form.email, "fullname": form.fullname})
+        created = datetime.datetime.now()
+        user = await dao.UserDAO.add(**{"username": form.username,
+                                        "password": get_password_hash(form.password),  # store hashed
+                                        "birth_year": form.birth_year,
+                                        "email": form.email, "fullname": form.fullname,
+                                        "created": created})
         status_code = 200
 
     except AssertionError as e:
