@@ -125,9 +125,17 @@ class AsyncBaseDAO:
             )
             return "DELETE 1" in result
 
+
 class UserDAO(AsyncBaseDAO):
-    model_table = "users"
+    model_table = "app_users"
     pk_column = "user_id"
+
+    # check if the username exists in db
+    @classmethod
+    async def username_exists(cls, username: str) -> bool:
+        async with cls._pool.acquire() as conn:
+            exists = await conn.fetchval(f"SELECT 1 FROM {cls.model_table} WHERE username = $1 LIMIT 1", username)
+            return bool(exists)
 
 
 if __name__ == '__main__':
@@ -136,10 +144,16 @@ if __name__ == '__main__':
         # at app startup
         await AsyncBaseDAO.initialize_pools()
 
-        # example
+        # find_all
         users = await UserDAO.find_all()
+        print(f'{len(users) = }')
         for u in users:
             print(u)
+
+        # username_exists
+        username = 'its_dmitrii'
+        exists = await UserDAO.username_exists(username)
+        print(f'{username = }, {exists = }')
 
         await AsyncBaseDAO.close_pools()
 

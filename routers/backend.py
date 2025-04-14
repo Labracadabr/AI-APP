@@ -23,7 +23,7 @@ class SubmitDrawing(BaseModel):
 @router.post("/submit-drawing")
 async def submit_drawing(data: SubmitDrawing):
     logger.info(f"/submit-drawing item_name = {data.item_name}, size = {round(len(data.image) * 3 // 4 / 1024, 2)}kb")
-    result = {"message": '', "passed": False, "error": None}
+    result = {"message": '', "passed": False}
 
     # prepare request to llm-provider
     prompt = open('prompt.txt', 'r', encoding='utf-8').read().format(item_name=data.item_name, language=data.language)
@@ -54,8 +54,8 @@ class UserRegForm(BaseModel):
     username: str
     password: str
     birth_year: int
-    email: str = None
-    fullname: str = None
+    email: str | None = None
+    fullname: str | None = None
 
     async def valid(self):
         year_now = datetime.datetime.now().year
