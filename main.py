@@ -5,7 +5,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.middleware import SlowAPIMiddleware
 
-from routers import frontend, backend, static, security
+from routers import frontend, backend, security
 from app.dao import AsyncBaseDAO
 from logger import logger
 from middleware.logging import LoggingMiddleware
@@ -22,7 +22,6 @@ app.add_middleware(LoggingMiddleware)
 # include routers
 app.include_router(frontend.router)
 app.include_router(backend.router)
-app.include_router(static.router)
 app.include_router(security.router)
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
