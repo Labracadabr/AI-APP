@@ -7,9 +7,9 @@ from config import config
 
 
 class AsyncBaseDAO:
-    dsn = f"postgresql://{config.user}:{config.password}@{config.host}:{config.port}/{config.dbname}"
+    db_url = f"postgresql://{config.user}:{config.password}@{config.host}:{config.port}/{config.dbname}"
 
-    model_table: str = None
+    table_name: str = None
     pk_column: str = "id"  # primary key column name
 
     # connection pool to be initialized at application startup
@@ -25,12 +25,7 @@ class AsyncBaseDAO:
     async def initialize_pools(cls):
         for dao in cls._daos:
             if not dao._pool:
-                await dao.initialize_pool()
-
-    @classmethod
-    async def initialize_pool(cls, **pool_kwargs):
-        """Initialize the connection pool (call once at app startup)"""
-        cls._pool = await asyncpg.create_pool(cls.dsn, **pool_kwargs)
+                cls._pool = await asyncpg.create_pool(cls.db_url)
 
     @classmethod
     async def close_pools(cls):
@@ -41,15 +36,6 @@ class AsyncBaseDAO:
 
     # CRUD
     @classmethod
-    async def find_one_or_none_by_id(cls, data_id: int) -> Optional[Dict[str, Any]]:
-        async with cls._pool.acquire() as conn:
-            row = await conn.fetchrow(
-                f"SELECT * FROM {cls.model_table} WHERE {cls.pk_column} = $1",
-                data_id
-            )
-            return dict(row) if row else None
-
-    @classmethod
     async def find_one_or_none(cls, **filter_by) -> Optional[Dict[str, Any]]:
         if not filter_by:
             raise ValueError("At least one filter condition must be provided")
@@ -59,7 +45,7 @@ class AsyncBaseDAO:
             values = list(filter_by.values())
 
             row = await conn.fetchrow(
-                f"SELECT * FROM {cls.model_table} WHERE {conditions}",
+                f"SELECT * FROM {cls.table_name} WHERE {conditions}",
                 *values
             )
             return dict(row) if row else None
@@ -70,9 +56,9 @@ class AsyncBaseDAO:
             if filter_by:
                 conditions = " AND ".join([f"{k} = ${i + 1}" for i, k in enumerate(filter_by.keys())])
                 values = list(filter_by.values())
-                query = f"SELECT * FROM {cls.model_table} WHERE {conditions}"
+                query = f"SELECT * FROM {cls.table_name} WHERE {conditions}"
             else:
-                query = f"SELECT * FROM {cls.model_table}"
+                query = f"SELECT * FROM {cls.table_name}"
                 values = []
 
             rows = await conn.fetch(query, *values)
@@ -89,7 +75,7 @@ class AsyncBaseDAO:
             returning_cols = ", ".join(values.keys())
 
             row = await conn.fetchrow(
-                f"INSERT INTO {cls.model_table} ({columns}) "
+                f"INSERT INTO {cls.table_name} ({columns}) "
                 f"VALUES ({placeholders}) "
                 f"RETURNING {returning_cols}",
                 *values.values()
@@ -107,7 +93,7 @@ class AsyncBaseDAO:
             values_list = list(values.values())
 
             row = await conn.fetchrow(
-                f"UPDATE {cls.model_table} "
+                f"UPDATE {cls.table_name} "
                 f"SET {set_clause} "
                 f"WHERE {cls.pk_column} = ${len(values_list) + 1} "
                 f"RETURNING *",
@@ -120,21 +106,21 @@ class AsyncBaseDAO:
         """Delete record by ID, returns True if any row was affected"""
         async with cls._pool.acquire() as conn:
             result = await conn.execute(
-                f"DELETE FROM {cls.model_table} WHERE {cls.pk_column} = $1",
+                f"DELETE FROM {cls.table_name} WHERE {cls.pk_column} = $1",
                 data_id
             )
             return "DELETE 1" in result
 
 
 class UserDAO(AsyncBaseDAO):
-    model_table = "app_users"
+    table_name = "app_users"
     pk_column = "user_id"
 
     # check if the username exists in db
     @classmethod
     async def username_exists(cls, username: str) -> bool:
         async with cls._pool.acquire() as conn:
-            exists = await conn.fetchval(f"SELECT 1 FROM {cls.model_table} WHERE username = $1 LIMIT 1", username)
+            exists = await conn.fetchval(f"SELECT 1 FROM {cls.table_name} WHERE username = $1 LIMIT 1", username)
             return bool(exists)
 
 
@@ -144,13 +130,13 @@ if __name__ == '__main__':
         # at app startup
         await AsyncBaseDAO.initialize_pools()
 
-        # find_all
+        # 1. find_all
         users = await UserDAO.find_all()
         print(f'{len(users) = }')
         for u in users:
             print(u)
 
-        # username_exists
+        # 2. username_exists
         username = 'its_dmitrii'
         exists = await UserDAO.username_exists(username)
         print(f'{username = }, {exists = }')
