@@ -4,19 +4,20 @@ from environs import Env
 
 @dataclass
 class Config:
-    site: str = None
-    crypt_key: str = None           # ключ шифрования
+    site: str
+    max_drawing_size_kb: int
+    crypt_key: str           # ключ шифрования
 
     # LLM API
-    GROQ_API_KEY: str = None
-    GEMINI_API_KEY: str = None
+    GROQ_API_KEY: str
+    GEMINI_API_KEY: str
 
     # DB
-    host: str = None                # хост
-    dbname: str = None              # имя базы данных
-    user: str = None                # пользователь
-    password: str = None            # пароль
-    port: int = None                # порт
+    host: str                # хост
+    dbname: str              # имя базы данных
+    user: str                # пользователь
+    password: str            # пароль
+    port: int                # порт
 
 
 # загрузить конфиг из переменных окружения
@@ -24,6 +25,7 @@ env = Env()
 env.read_env()
 config = Config(
     site=env('site'),
+    max_drawing_size_kb=int(env('max_drawing_size_kb')),
     crypt_key=env('crypt_key'),
     GROQ_API_KEY=env('GROQ_API_KEY'),
     GEMINI_API_KEY=env('GEMINI_API_KEY'),

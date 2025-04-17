@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from app import ai, dao
 from routers.security import get_password_hash
 from logger import logger
+from config import config
 
 router = APIRouter(prefix='/api', tags=['backend'])
 llm = ai.GeminiLLM()
@@ -18,13 +19,21 @@ llm = ai.GeminiLLM()
 class SubmitDrawing(BaseModel):
     image: str
     item_name: str
-    language: str = 'EN'
+    language: str = 'en'
 
 
 @router.post("/submit-drawing")
 async def submit_drawing(data: SubmitDrawing):
-    logger.info(f"/submit-drawing item_name = {data.item_name}, size = {round(len(data.image) * 3 // 4 / 1024, 2)}kb")
     result = {"message": '', "passed": False}
+    size = round(len(data.image) * 3 // 4 / 1024, 2)  # kilobytes
+    logger.info(f"/submit-drawing item_name = {data.item_name}, size = {size} kb")
+
+    # check size
+    if size > config.max_drawing_size_kb:
+        result['error'] = 'Content Too Large!' if data.language == 'en' else 'Слишком тяжелый файл!'
+        result['error'] += f' ({size} kb, limit = {config.max_drawing_size_kb} kb)'
+        status_code = 413
+        return JSONResponse(result, status_code=status_code)
 
     # prepare request to llm-provider
     prompt = open('prompt.txt', 'r', encoding='utf-8').read().format(item_name=data.item_name, language=data.language)
